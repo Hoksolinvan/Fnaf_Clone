@@ -18,6 +18,6 @@ list(APPEND CMAKE_PREFIX_PATH
 find_package(SDL3 REQUIRED)
 find_package(SDL3_image REQUIRED)
 find_package(SDL3_mixer REQUIRED)
-add_executable(fnaf_1 src/main.cpp)
+add_executable(fnaf_1 src/main.cpp src/mainmenu.cpp)
 file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
 target_link_libraries(fnaf_1 PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer)
