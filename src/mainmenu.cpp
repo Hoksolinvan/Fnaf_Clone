@@ -2,6 +2,61 @@
 
 void MainMenu::init_menu(SDL_Renderer* renderer){
 
+   
+    TTF_Font *font = TTF_OpenFont("external/textfiles/consolas.ttf",64);
+    if(!(font)){
+        std::cerr << SDL_GetError() << "\n";
+    }
+
+
+    SDL_Surface* textSurface = TTF_RenderText_Blended(
+        font,
+        "Five Night's At Freddy",
+        0,
+        color
+    );
+
+    SDL_Surface* textSurface2 = TTF_RenderText_Blended(
+        font,
+        "New Game",
+        0,
+        color
+    );
+
+    SDL_Surface* textSurface3 = TTF_RenderText_Blended(
+        font,
+        "Continue",
+        0,
+        color
+    );
+
+    SDL_Surface* textSurface4 = TTF_RenderText_Blended(
+        font,
+        ">> New Game",
+        0,
+        color
+    );
+
+    SDL_Surface* textSurface5 = TTF_RenderText_Blended(
+        font,
+        ">> Continue",
+        0,
+        color
+    );
+
+    textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    textTexture1 = SDL_CreateTextureFromSurface(renderer,textSurface2);
+    textTexture2 = SDL_CreateTextureFromSurface(renderer,textSurface3);
+    textTexture3 = SDL_CreateTextureFromSurface(renderer,textSurface4);
+    textTexture4 = SDL_CreateTextureFromSurface(renderer,textSurface5);
+    
+    TTF_CloseFont(font);
+    SDL_DestroySurface(textSurface);
+    SDL_DestroySurface(textSurface2);
+    SDL_DestroySurface(textSurface3);
+    SDL_DestroySurface(textSurface4);
+    SDL_DestroySurface(textSurface5);
+
     SDL_Surface* surface = IMG_Load("assets/static_and_menu/Menu/431.png");
     SDL_Surface* surface2 = IMG_Load("assets/static_and_menu/Menu/440.png");
     SDL_Surface* surface3 = IMG_Load("assets/static_and_menu/Menu/441.png");
@@ -44,6 +99,34 @@ void MainMenu::init_menu(SDL_Renderer* renderer){
     return;
 }
 
+
+bool MainMenu::render_text(){
+
+    float mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+
+  
+
+    SDL_RenderTexture(renderer,textTexture,NULL, &dst);
+
+    if((mouseX>=dst2.x && mouseX<=dst2.x+dst.w && mouseY>=dst2.y && mouseY<=dst2.y+dst2.h)){
+        SDL_RenderTexture(renderer,textTexture3, NULL, &dst4);
+    }
+    else{
+       SDL_RenderTexture(renderer,textTexture1, NULL, &dst2);
+    }
+    if((mouseX>=dst3.x && mouseX<=dst3.x+dst.w && mouseY>=dst3.y && mouseY<=dst3.y+dst3.h)){
+    
+     SDL_RenderTexture(renderer,textTexture4, NULL, &dst5);
+    }
+    else{
+       SDL_RenderTexture(renderer,textTexture2, NULL, &dst3);
+    }
+   
+
+
+    return false;
+}
 
 void MainMenu::default_main_menu() {
     SDL_RenderTexture(renderer, textures[0], NULL, &dest);
@@ -116,6 +199,8 @@ void MainMenu::main_menu_state(int state,int frame){
 void MainMenu::staticTexture(int state){
 
     SDL_RenderTexture(this->renderer, static_textures[state], NULL, &dest);
+
+    
     
 
     return;

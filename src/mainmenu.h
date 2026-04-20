@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <random>
 #include <algorithm>
 #include <iostream>
@@ -16,6 +17,7 @@ class MainMenu{
         dest2= {0, 0, static_cast<float>(w), (float)h*2};
 
         init_menu(renderer);
+       
     }
     ~MainMenu(){
     }
@@ -26,6 +28,7 @@ class MainMenu{
     void main_menu_state(int state=0, int frame=0);
     void staticTexture(int state=0);
     void divided_staticTexture(int frame);
+    bool render_text();
 
 
     private:
@@ -36,6 +39,11 @@ class MainMenu{
     SDL_Texture* static_textures[9];
     SDL_Texture* divided_static_texture[15];
     SDL_Renderer* renderer;
+    SDL_Texture* textTexture;
+    SDL_Texture* textTexture1;
+    SDL_Texture* textTexture2;
+    SDL_Texture* textTexture3;
+    SDL_Texture* textTexture4;
     const char* path[9]= {
         "assets/static_and_menu/Full_Static/12.png",
         "assets/static_and_menu/Full_Static/13.png",
@@ -66,6 +74,12 @@ class MainMenu{
     };
     SDL_FRect dest;
     SDL_FRect dest2;
+    SDL_FRect dst = {100,100,450,100};
+    SDL_FRect dst2 = {100,300,200,50};
+    SDL_FRect dst3 = {100,400,200,50};
+    SDL_FRect dst4 = {100,300,300,50};
+    SDL_FRect dst5 = {100,400,300,50};
+    SDL_Color color = {255,255,255,255};
 
 
 };
