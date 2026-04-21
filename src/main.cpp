@@ -5,6 +5,7 @@
 
 const int window_x = 1280;
 const int window_y = 720;
+const int delayPerItem = 25;
 bool running = true;
 bool main_menu = true;
 bool main_game = false;
@@ -13,6 +14,15 @@ bool default_main_menu = true;
 int main_menu_state = 0;
 int alpha = 240;
 bool pressed_E = false;
+bool screen_camera = false;
+Uint64 previous_camera_time =0;
+SDL_Texture* camera_array[11];
+bool animating =false;
+bool cameraMode = false;
+int animFrame = 0;
+Uint64 animStartFrame = SDL_GetTicks();
+int leftdoorstate =0;
+int rightdoorstate =0;
 
 
 int main(int argc, char* argv[]){
@@ -94,11 +104,37 @@ int main(int argc, char* argv[]){
     TTF_Font* font =  TTF_OpenFont("external/textfiles/consolas.ttf",64);
     SDL_Color color = {255,255,255,255};
     SDL_FRect dst = {1075/2,500/2,200,50};
+
+    SDL_FRect cameradst={0,0,1280,720};
     SDL_FRect dst1 = {1075/2,600/2,200,50};
     SDL_Surface* textSurface = TTF_RenderText_Blended(font,"12:00",0,color);
     SDL_Surface* textSurface1 = TTF_RenderText_Blended(font,"Night 1",0,color);
     SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer,textSurface);
     SDL_Texture* text_texture1 = SDL_CreateTextureFromSurface(renderer,textSurface1);
+
+    SDL_Surface* main_camera = IMG_Load("assets/Office/Map/145.png");
+    SDL_Texture* main_camera_texture = SDL_CreateTextureFromSurface(renderer,main_camera);
+    SDL_DestroySurface(main_camera);
+    const char* path[11]={
+        "assets/Office/Monitor/46.png",
+        "assets/Office/Monitor/132.png",
+        "assets/Office/Monitor/133.png",
+        "assets/Office/Monitor/136.png",
+        "assets/Office/Monitor/137.png",
+        "assets/Office/Monitor/138.png",
+        "assets/Office/Monitor/139.png",
+        "assets/Office/Monitor/140.png",
+        "assets/Office/Monitor/141.png",
+        "assets/Office/Monitor/142.png",
+        "assets/Office/Monitor/144.png"
+    };
+
+    for(int i =0; i<11;i++){
+
+        SDL_Surface* camera_surface = IMG_Load(path[i]);
+        camera_array[i]=SDL_CreateTextureFromSurface(renderer,camera_surface);
+        SDL_DestroySurface(camera_surface);
+    }
 
     TTF_CloseFont(font);
     SDL_DestroySurface(textSurface);
@@ -122,6 +158,27 @@ int main(int argc, char* argv[]){
             if(event.type == SDL_EVENT_QUIT){
                 running = false;
             }
+
+            if (event.type == SDL_EVENT_MOUSE_MOTION) {
+                float mouseX, mouseY;
+                SDL_GetMouseState(&mouseX, &mouseY);
+                if(main_office){
+                     if(mouseY>=window_y*0.75 && mouseY<window_y && SDL_GetTicks()-previous_camera_time>=900){
+                        screen_camera = !screen_camera;
+                        previous_camera_time = SDL_GetTicks();
+                        MIX_SetTrackAudio(sfxTrack, blip);
+                        MIX_PlayTrack(sfxTrack, 0);
+                         animating=true;
+                        animFrame=0;
+                         animStartFrame = SDL_GetTicks();
+                         cameraMode= false;
+                        
+                }
+
+                    
+                }
+            }
+
              if(event.type==SDL_EVENT_MOUSE_BUTTON_DOWN){
 
                 if(main_menu){
@@ -129,14 +186,41 @@ int main(int argc, char* argv[]){
                 int mouseX_button = event.button.x;
                 int mouseY_button = event.button.y;
                if(mouseX_button>=75 && mouseX_button<=450 && mouseY_button>=300 && mouseY_button<=500){
+                
                 main_menu = false;
                 main_game = true;
+               
                 MIX_SetTrackAudio(sfxTrack, blip);
                 MIX_PlayTrack(sfxTrack, 0);
-
                }
+
+               
             
             }
+
+            if(main_office){
+                  int mouseX_button = event.button.x;
+                int mouseY_button = event.button.y;
+                if(mouseX_button>=0 && mouseX_button<=100 && mouseY_button>=360 && mouseY_button<=400){
+                        leftdoorstate = !leftdoorstate;
+                        std::cout << "hello world" << std::endl;
+
+                    }
+
+                if(mouseX_button>=0 && mouseX_button<=100 && mouseY_button>=290 && mouseY_button<=350){
+                    std::cout <<"hello stuff" << std::endl;
+                }
+
+                if(mouseX_button>=1700 && mouseX_button<=1920 && mouseY_button>=360 && mouseY_button<=400){
+                    std::cout <<"hello world 2" << std::endl;
+                }
+
+                if(mouseX_button>=1700 && mouseX_button<=1920 && mouseY_button>=360 && mouseY_button<=400){
+                    std::cout << "hello stuff 2" << std::endl;
+                }
+            }
+
+            
             }
             if(event.type==SDL_EVENT_KEY_DOWN){
                 if(event.key.key == SDLK_E){
@@ -229,11 +313,41 @@ int main(int argc, char* argv[]){
         }
       
           
-            
+             if(cameraMode){
 
-            mainoffice->RenderOffice();
+            SDL_RenderTexture(renderer,main_camera_texture,NULL,&cameradst);
+        }
+            
+            if(!screen_camera){
+            mainoffice->RenderOffice(screen_camera);
+            }
+            else{
+                if (animating) {
+    Uint32 elapsed = SDL_GetTicks() - animStartFrame;
+    animFrame = elapsed / delayPerItem;
+
+    if (animFrame >= 9) {
+        animFrame = 8;     // clamp to last frame
+        animating = false;  // animation done
+        cameraMode=true;
+    }
+
+    SDL_RenderTexture(renderer, camera_array[animFrame], NULL, &cameradst);
+}
+
+
+
+                
+        }
+
+        if(cameraMode){
+
+            SDL_RenderTexture(renderer,main_camera_texture,NULL,&cameradst);
+        }
+      
 
         }
+        
 
 
         SDL_RenderPresent(renderer);

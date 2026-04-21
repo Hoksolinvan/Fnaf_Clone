@@ -20,6 +20,21 @@ class MainMenu{
        
     }
     ~MainMenu(){
+        for(int i=0; i<4;i++){
+            SDL_DestroyTexture(textures[i]);
+        }
+        for(int i=0; i<9;i++){
+            SDL_DestroyTexture(static_textures[i]);
+        }
+        for(int i=0; i<15;i++){
+            SDL_DestroyTexture(divided_static_texture[i]);
+        }
+
+        SDL_DestroyTexture(textTexture);
+        SDL_DestroyTexture(textTexture1);
+        SDL_DestroyTexture(textTexture2);
+        SDL_DestroyTexture(textTexture3);
+        SDL_DestroyTexture(textTexture4);
     }
 
 
