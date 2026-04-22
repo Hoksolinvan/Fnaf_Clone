@@ -21,8 +21,11 @@ bool animating =false;
 bool cameraMode = false;
 int animFrame = 0;
 Uint64 animStartFrame = SDL_GetTicks();
-int leftdoorstate =0;
-int rightdoorstate =0;
+bool leftdoorbottom =false;
+bool leftdoorup = false;
+
+bool rightdoorbottom = false;
+bool rightdoorup = false;
 
 
 int main(int argc, char* argv[]){
@@ -85,20 +88,33 @@ int main(int argc, char* argv[]){
 
     MIX_Init();
     MIX_Mixer* mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+    MIX_Audio* darkness = MIX_LoadAudio(mixer,"assets/sounds/darkness_music.wav",false);
     MIX_Audio* ambience = MIX_LoadAudio(mixer, "assets/sounds/ambience2.wav", false);
+    MIX_Audio* buzzfan = MIX_LoadAudio(mixer,"assets/sounds/Buzz_Fan_Florescent2.wav",false);
     MIX_Audio* staticSound  = MIX_LoadAudio(mixer, "assets/sounds/static.wav", false);
     MIX_Audio* staticSound2 = MIX_LoadAudio(mixer, "assets/sounds/static2.wav", false);
     MIX_Audio* blip         = MIX_LoadAudio(mixer, "assets/sounds/blip3.wav", false);
     MIX_Audio* night1 = MIX_LoadAudio(mixer,"assets/sounds/voiceover1c.wav",false);
+    MIX_Audio* hum = MIX_LoadAudio(mixer,"assets/sounds/BallastHumMedium2.wav",false);
+    MIX_Audio* door_close = MIX_LoadAudio(mixer,"assets/sounds/SFXBible_12478.wav",false);
+    
     MIX_Track* sfxTrack = MIX_CreateTrack(mixer);
     MIX_Track* sfxTrack1 = MIX_CreateTrack(mixer);
+    MIX_Track* darknessTrack = MIX_CreateTrack(mixer);
     MIX_Track* ambienceTrack = MIX_CreateTrack(mixer);
+    MIX_Track* buzzfan_track = MIX_CreateTrack(mixer);
+    MIX_SetTrackAudio(sfxTrack,staticSound);
+    MIX_SetTrackAudio(sfxTrack1,staticSound2);
     MIX_SetTrackAudio(ambienceTrack, ambience);
+    MIX_SetTrackAudio(buzzfan_track,buzzfan);
+    MIX_SetTrackAudio(darknessTrack,darkness);
+    MIX_SetTrackGain(buzzfan_track, 0.2f);
+    
 
     SDL_PropertiesID props = SDL_CreateProperties();
     SDL_SetNumberProperty(props, MIX_PROP_PLAY_LOOPS_NUMBER, -1); // -1 = loop forever
     MIX_PlayTrack(ambienceTrack, props);
-    SDL_DestroyProperties(props);
+    //SDL_DestroyProperties(props);
 
 
     TTF_Font* font =  TTF_OpenFont("external/textfiles/consolas.ttf",64);
@@ -182,14 +198,21 @@ int main(int argc, char* argv[]){
              if(event.type==SDL_EVENT_MOUSE_BUTTON_DOWN){
 
                 if(main_menu){
+
+
+                    if(!MIX_TrackPlaying(darknessTrack)){
+                         MIX_PlayTrack(darknessTrack, 0);
+                          }
+                         
             
                 int mouseX_button = event.button.x;
                 int mouseY_button = event.button.y;
                if(mouseX_button>=75 && mouseX_button<=450 && mouseY_button>=300 && mouseY_button<=500){
                 
+
                 main_menu = false;
                 main_game = true;
-               
+                MIX_StopTrack(darknessTrack,0);
                 MIX_SetTrackAudio(sfxTrack, blip);
                 MIX_PlayTrack(sfxTrack, 0);
                }
@@ -199,25 +222,66 @@ int main(int argc, char* argv[]){
             }
 
             if(main_office){
+                
                   int mouseX_button = event.button.x;
                 int mouseY_button = event.button.y;
                 if(mouseX_button>=0 && mouseX_button<=100 && mouseY_button>=360 && mouseY_button<=400){
-                        leftdoorstate = !leftdoorstate;
-                        std::cout << "hello world" << std::endl;
+                        
+                          if (!MIX_TrackPlaying(sfxTrack)) {
+                        MIX_SetTrackAudio(sfxTrack, hum);
+                        MIX_PlayTrack(sfxTrack, 0);
+                          }
+                          else{
+                            MIX_StopTrack(sfxTrack,0);
+                          }
 
+                          leftdoorbottom = !leftdoorbottom;
                     }
 
                 if(mouseX_button>=0 && mouseX_button<=100 && mouseY_button>=290 && mouseY_button<=350){
-                    std::cout <<"hello stuff" << std::endl;
+
+                     if (!MIX_TrackPlaying(sfxTrack)) {
+                        MIX_SetTrackAudio(sfxTrack, door_close);
+                        MIX_PlayTrack(sfxTrack, 0);
+                          }
+                          else{
+                            MIX_SetTrackAudio(sfxTrack, door_close);
+                             MIX_PlayTrack(sfxTrack, 0);
+                            // MIX_StopTrack(sfxTrack,0);
+                          }
+
+                          leftdoorup = !leftdoorup;
                 }
 
-                if(mouseX_button>=1700 && mouseX_button<=1920 && mouseY_button>=360 && mouseY_button<=400){
-                    std::cout <<"hello world 2" << std::endl;
+                if(mouseX_button>=1180 && mouseX_button<=1250 && mouseY_button>=290 && mouseY_button<=340){
+
+                       if (!MIX_TrackPlaying(sfxTrack)) {
+                        MIX_SetTrackAudio(sfxTrack, door_close);
+                        MIX_PlayTrack(sfxTrack, 0);
+                          }
+                          else{
+                            MIX_SetTrackAudio(sfxTrack, door_close);
+                             MIX_PlayTrack(sfxTrack, 0);
+                            // MIX_StopTrack(sfxTrack,0);
+                          }
+
+                          rightdoorup = !rightdoorup;
                 }
 
-                if(mouseX_button>=1700 && mouseX_button<=1920 && mouseY_button>=360 && mouseY_button<=400){
-                    std::cout << "hello stuff 2" << std::endl;
+                if(mouseX_button>=1180 && mouseX_button<=1250 && mouseY_button>=360 && mouseY_button<=400){
+                      if (!MIX_TrackPlaying(sfxTrack)) {
+                    MIX_SetTrackAudio(sfxTrack, hum);
+                        MIX_PlayTrack(sfxTrack, 0);
+                      }
+                       else{
+                            MIX_StopTrack(sfxTrack,0);
+                          }
+
+                          rightdoorbottom = !rightdoorbottom;
                 }
+
+
+            
             }
 
             
@@ -233,12 +297,18 @@ int main(int argc, char* argv[]){
         
         if(main_menu){
 
-           if (!MIX_TrackPlaying(sfxTrack)) {
+       
+
+                      if (!MIX_TrackPlaying(sfxTrack)) {
             MIX_SetTrackAudio(sfxTrack, staticSound);
             MIX_PlayTrack(sfxTrack, 0);
         }
 
 
+          if(!MIX_TrackPlaying(darknessTrack)){
+            MIX_SetTrackAudio(darknessTrack,darkness);
+            MIX_PlayTrack(darknessTrack,0);
+          }
             if(default_main_menu){
                
             main_menu_object->default_main_menu();
@@ -299,6 +369,12 @@ int main(int argc, char* argv[]){
         }
         else if(main_office){
 
+            if(!MIX_TrackPlaying(buzzfan_track)){
+                   MIX_PlayTrack(buzzfan_track, props);
+
+                
+            }
+
 
             if(pressed_E){
                 MIX_StopTrack(sfxTrack1,0);
@@ -319,7 +395,7 @@ int main(int argc, char* argv[]){
         }
             
             if(!screen_camera){
-            mainoffice->RenderOffice(screen_camera);
+            mainoffice->RenderOffice(screen_camera,leftdoorbottom,leftdoorup,rightdoorbottom,rightdoorup);
             }
             else{
                 if (animating) {

@@ -22,7 +22,7 @@ class MainOffice{
     }
 
     void initOffice();
-    void RenderOffice(bool screen_camera);
+    void RenderOffice(bool screen_camera, bool leftdoorbottom=false, bool leftdoorup=false, bool rightdoorbottom=false, bool rightdoorup=false);
     void RenderCamera();
 
 
@@ -34,6 +34,9 @@ class MainOffice{
     SDL_Texture* Fan[3];
     SDL_Texture* leftDoorButton[4];
     SDL_Texture* rightDoorButton[4];
+    SDL_Texture* officeTextures[7];
+    SDL_Texture* rightDoorFrame[13];
+    SDL_Texture* leftDoorFrame[13];
     int width;
     int height;
     SDL_FRect dst;
@@ -45,7 +48,8 @@ class MainOffice{
     SDL_FRect cameradst={935,299,165,200};
     SDL_FRect leftdst={0,250,100,200};
     SDL_FRect rightdst={1800,250,100,200};
-
+    SDL_FRect leftdoor= {115,0,223,720};
+    SDL_FRect rightdoor={static_cast<float>(width+260),0,223,720};
     
 
 };
