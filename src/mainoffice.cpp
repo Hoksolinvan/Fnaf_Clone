@@ -198,7 +198,7 @@ void MainOffice::initOffice(){
 
     for(int i=0; i<6;i++){
         SDL_Surface* temp = IMG_Load(E_hall_path_2[i]);
-        E_Hall_Corner[i]=SDL_CreateTextureFromSurface(renderer,temp);
+        East_Hall[i]=SDL_CreateTextureFromSurface(renderer,temp);
         SDL_DestroySurface(temp);
     }
 
@@ -393,11 +393,62 @@ void MainOffice::initOffice(){
         SDL_DestroySurface(temp);
     }
 
+
+
+    SDL_Surface* Showstage = IMG_Load("assets/Locations/Names/54.png");
+    texts[0]=SDL_CreateTextureFromSurface(renderer,Showstage);
+    SDL_DestroySurface(Showstage);
+    SDL_Surface* DiningArea = IMG_Load("assets/Locations/Names/72.png");
+    texts[1]=SDL_CreateTextureFromSurface(renderer,DiningArea);
+    SDL_DestroySurface(DiningArea);
+    SDL_Surface* Backstage = IMG_Load("assets/Locations/Names/71.png");
+    texts[2]=SDL_CreateTextureFromSurface(renderer,Backstage);
+    SDL_DestroySurface(Backstage);
+    SDL_Surface* PirateCove = IMG_Load("assets/Locations/Names/73.png");
+    texts[3]=SDL_CreateTextureFromSurface(renderer,PirateCove);
+    SDL_DestroySurface(PirateCove);
+    SDL_Surface* WestHall = IMG_Load("assets/Locations/Names/74.png");
+    texts[4]=SDL_CreateTextureFromSurface(renderer,WestHall);
+    SDL_DestroySurface(WestHall);
+    SDL_Surface* Restrooms = IMG_Load("assets/Locations/Names/77.png");
+    texts[5]=SDL_CreateTextureFromSurface(renderer,Restrooms);
+    SDL_DestroySurface(Restrooms);
+    SDL_Surface* Kitchen = IMG_Load("assets/Locations/Names/78.png");
+    texts[6]=SDL_CreateTextureFromSurface(renderer,Kitchen);
+    SDL_DestroySurface(Kitchen);
+    SDL_Surface* EastHall = IMG_Load("assets/Locations/Names/79.png");
+    texts[7]=SDL_CreateTextureFromSurface(renderer,EastHall);
+    SDL_DestroySurface(EastHall);
+    SDL_Surface* SupplyCloset = IMG_Load("assets/Locations/Names/50.png");
+    texts[8]=SDL_CreateTextureFromSurface(renderer,SupplyCloset);
+    SDL_DestroySurface(SupplyCloset);
+    SDL_Surface* EHallCorner = IMG_Load("assets/Locations/Names/75.png");
+    texts[9]=SDL_CreateTextureFromSurface(renderer,EHallCorner);
+    SDL_DestroySurface(EHallCorner);
+    SDL_Surface* WHallCorner = IMG_Load("assets/Locations/Names/76.png");
+    texts[10]=SDL_CreateTextureFromSurface(renderer,WHallCorner);
+    SDL_DestroySurface(WHallCorner);
+
+    // SDL_Surface* camera_green = IMG_Load("assets/Numbers_and_Night/Camera_and_Nights/576.png");
+    
+    // camera_green_texture = SDL_CreateTextureFromSurface(renderer,camera_green);
+
+    // SDL_DestroySurface(camera_green);
+
+
+    SDL_Surface* ending_1 = IMG_Load("assets/Office/Office_Inside/304.png");
+    ending_1_texture = SDL_CreateTextureFromSurface(renderer,ending_1);
+    SDL_Surface* ending_2 = IMG_Load("assets/Office/Office_Inside/305.png");
+    ending_2_texture = SDL_CreateTextureFromSurface(renderer,ending_2);
+    SDL_DestroySurface(ending_1);
+    SDL_DestroySurface(ending_2);
+
+
     return;
 }
 
 
-void MainOffice::RenderOffice(bool screen_camera, bool leftdoorbottom, bool leftdoorup, bool rightdoorbottom, bool rightdoorup){
+void MainOffice::RenderOffice(bool screen_camera, bool leftdoorbottom, bool leftdoorup, bool rightdoorbottom, bool rightdoorup, bool ending){
 
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
@@ -426,8 +477,11 @@ void MainOffice::RenderOffice(bool screen_camera, bool leftdoorbottom, bool left
     }
 
 
+    
+  
 
     if(!screen_camera){
+       
 
 
     if(!leftdoorbottom && !rightdoorbottom){
@@ -573,7 +627,7 @@ void MainOffice::RenderOffice(bool screen_camera, bool leftdoorbottom, bool left
 }
 
 
-void MainOffice::RenderCamera(int state){
+void MainOffice::RenderCamera(int state,int cameralocation){
 
 
     Uint32 elapsed = SDL_GetTicks() - animStartFrame;
@@ -596,18 +650,125 @@ else if (dstCam.x <= -dstCam.w / 6) {
         SDL_RenderTexture(renderer,Showstage[1],0,&dstCam);
         break;
         case 1:
-        SDL_RenderTexture(renderer,Showstage[0],0,&dstCam);
+        SDL_RenderTexture(renderer,DiningHall[0],0,&dstCam);
+        break;
+        case 2:
+        SDL_RenderTexture(renderer,Backstage[0],0,&dstCam);
+        break;
+        case 3:
+        SDL_RenderTexture(renderer,Restrooms[0],0,&dstCam);
+        break;
+        case 4:
+        SDL_RenderTexture(renderer,PirateCover[0],0,&dstCam);
+        break;
+        case 5:
+        SDL_RenderTexture(renderer,Supply_closet[0],0,&dstCam);
+        break;
+        case 6:
+        SDL_RenderTexture(renderer,NULL,0,&dstCam);
+        break;
+        case 7:
+        SDL_RenderTexture(renderer,WestHall[0],0,&dstCam);
+        break;
+        case 8:
+        SDL_RenderTexture(renderer,W_Hall_Corner[0],0,&dstCam);
+        break;
+        case 9:
+        SDL_RenderTexture(renderer,East_Hall[0],0,&dstCam);
+        break;
+        case 10:
+        SDL_RenderTexture(renderer,E_Hall_Corner[0],0,&dstCam);
         break;
     
     }
+         SDL_RenderTexture(renderer,main_camera_texture,0,&cameradst2);
+
+    switch(cameralocation){
+        case 0:
+        SDL_RenderTexture(renderer,texts[0],0,&textdst);
+       
+        break;
+        case 1:
+        SDL_RenderTexture(renderer,texts[1],0,&textdst);
+        break;
+        case 2:
+        SDL_RenderTexture(renderer,texts[2],0,&textdst);
+        break;
+        case 3:
+        SDL_RenderTexture(renderer,texts[3],0,&textdst);
+        break;
+        case 4:
+        SDL_RenderTexture(renderer,texts[4],0,&textdst);
+        break;
+        case 5:
+        SDL_RenderTexture(renderer,texts[5],0,&textdst);
+        break;
+        case 6:
+        SDL_RenderTexture(renderer,texts[6],0,&textdst);
+        break;
+        case 7:
+        SDL_RenderTexture(renderer,texts[7],0,&textdst);
+        break;
+        case 8:
+        SDL_RenderTexture(renderer,texts[8],0,&textdst);
+        break;
+        case 9:
+        SDL_RenderTexture(renderer,texts[9],0,&textdst);
+        break;
+        case 10:
+        SDL_RenderTexture(renderer,texts[10],0,&textdst);
+        break;
+
+        }
 
     auto elapsed_time_2 = SDL_GetTicks() - animStartFrame;
     secondanimFrame = elapsed_time_2/400;
 
      SDL_RenderTexture(renderer,Red[secondanimFrame%2],0,&topLeft);
-     SDL_RenderTexture(renderer,main_camera_texture,0,&cameradst2);
 
      SDL_RenderTexture(renderer,static_animation[animFrame%8],0,&dest);
+
+    //SDL_RenderTexture(renderer,camera_green_texture,0,&cam1a);
+
+
+    return;
+}
+
+void MainOffice::RenderEnding(){
+
+
+
+    float mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+
+   
+
+    if (mouseX >= width * 0.75f && mouseX<=width) {
+        if (dst.x + dst.w > width){// clamp right
+            dst.x -= 5;
+            leftdst.x-=5;
+            rightdoor.x-=5;
+            leftdoor.x-=5;
+            cameradst.x-=5;
+            rightdst.x-=5;
+        }
+    }
+    // pan left
+    if (mouseX>=0 && mouseX <= width * 0.25f) {
+        if (dst.x < 0) {// clamp left
+            dst.x += 5;
+            leftdst.x+=5;
+            rightdoor.x+=5;
+            leftdoor.x+=5;
+            cameradst.x+=5;
+        rightdst.x+=5;}
+    }
+    
+    SDL_RenderTexture(renderer,ending_1_texture,0,&dst);
+    SDL_RenderTexture(renderer, leftDoorButton[0], NULL, &leftdst);
+    SDL_RenderTexture(renderer,rightDoorButton[0],NULL,&rightdst);
+
+
 
     return;
 }

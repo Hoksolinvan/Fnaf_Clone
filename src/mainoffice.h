@@ -31,9 +31,9 @@ class MainOffice{
     }
 
     void initOffice();
-    void RenderOffice(bool screen_camera, bool leftdoorbottom=false, bool leftdoorup=false, bool rightdoorbottom=false, bool rightdoorup=false);
-    void RenderCamera(int state=0);
-
+    void RenderOffice(bool screen_camera, bool leftdoorbottom=false, bool leftdoorup=false, bool rightdoorbottom=false, bool rightdoorup=false, bool ending=false);
+    void RenderCamera(int state=0,int cameralocation = 0);
+    void RenderEnding();
 
 
 
@@ -42,6 +42,8 @@ class MainOffice{
     SDL_Renderer* renderer;
     SDL_Texture* default_office;
     SDL_Texture* main_camera_texture;
+    SDL_Texture* ending_1_texture;
+    SDL_Texture* ending_2_texture;
     SDL_Texture* Fan[3];
     SDL_Texture* leftDoorButton[4];
     SDL_Texture* rightDoorButton[4];
@@ -64,6 +66,8 @@ class MainOffice{
     SDL_Texture* FoxyRun[31];
 
     SDL_Texture* static_animation[8];
+
+    SDL_Texture* texts[11];
     
     int width;
     int height;
@@ -76,12 +80,26 @@ class MainOffice{
     bool animating =false;
     int cameradirection = -1;
     SDL_FRect cameradst={935,299,165,200};
+    SDL_FRect textdst = {955,350,200,50};
     SDL_FRect leftdst={0,250,100,200};
     SDL_FRect rightdst={1800,250,100,200};
     SDL_FRect leftdoor= {115,0,223,720};
     SDL_FRect cameradst2={875,400,400,300};
     SDL_FRect dest = {0,0,1280,720};
     SDL_FRect topLeft = {10,10,50,50};
+
+    // SDL_FRect cam1a = {500,405,65,30};
+    // SDL_FRect cam1b = {990,455,65,30};
+    // SDL_FRect cam5 = {890,475,65,30};
+    // SDL_FRect cam7 = {1190,475,65,30};
+    // SDL_FRect cam1c = {960,525,65,30};
+    // SDL_FRect cam3 = {930,595,65,30};
+    // SDL_FRect cam6 = {1190,585,65,30};
+    // SDL_FRect cam2a = {1000,605,65,30};
+    // SDL_FRect cam2b = {1000,645,65,30};
+    // SDL_FRect cam4a = {1100,615,65,30};
+    // SDL_FRect cam4b = {1100,645,65,30};
+    
     SDL_FRect rightdoor={static_cast<float>(width+260),0,223,720};
     
 

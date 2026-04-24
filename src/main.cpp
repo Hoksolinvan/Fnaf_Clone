@@ -2,6 +2,7 @@
 #include "mainoffice.h"
 #include <SDL3/SDL.h>
 #include <SDL3_mixer/SDL_mixer.h>
+#include "Animatronics.hpp"
 
 const int window_x = 1280;
 const int window_y = 720;
@@ -36,8 +37,13 @@ bool inner_E = false;
 int globalPowerUsage = 0;
 SDL_Texture* powerbar[5];
 int cur_default = 5000;
+int state =0;
+bool ending=false;
+
 
 int percentage = 100;
+int difficulty=1;
+int cameralocation = 0;
 
 int main(int argc, char* argv[]){
     srand(time(0));
@@ -128,6 +134,7 @@ int main(int argc, char* argv[]){
     SDL_DestroyProperties(props);
 
 
+    
     TTF_Font* font =  TTF_OpenFont("external/textfiles/consolas.ttf",64);
     SDL_Color color = {255,255,255,255};
     SDL_FRect dst = {1075/2,500/2,200,50};
@@ -150,9 +157,7 @@ int main(int argc, char* argv[]){
     SDL_Texture* flipper_texture = SDL_CreateTextureFromSurface(renderer,flipper);
     SDL_DestroySurface(flipper);
 
-    // SDL_Surface* main_camera = IMG_Load("assets/Office/Map/145.png");
-    // SDL_Texture* main_camera_texture = SDL_CreateTextureFromSurface(renderer,main_camera);
-    // SDL_DestroySurface(main_camera);
+    
     const char* path[11]={
         "assets/Office/Monitor/46.png",
         "assets/Office/Monitor/132.png",
@@ -200,17 +205,31 @@ int main(int argc, char* argv[]){
     }
 
 
-
+    
     SDL_DestroySurface(textSurface);
     SDL_DestroySurface(textSurface1);
     SDL_DestroySurface(usage_icon);
     SDL_DestroySurface(power_left);
    
+    Animatronic* Bonnie = new Bonnie(difficulty);
+    Animatronic* Freddy = new Freddy(difficulty);
+    Animatronic* Chika = new Chika(difficulty);
+    Animatronic* Foxy = new Foxy(difficulty);
+    
 
     while(running){
 
+        int chikaroom = Chika->isInRoom();
+        int bonnieroom = Bonnie->isInRoom();
+        int freddyroom = Freddy->isInRoom();
+    
 
         frame++;
+
+        Bonnie->Tick(leftdoorup,cameraMode,chikaroom,freddyroom);
+        Freddy->Tick(rightdoorup,cameraMode,bonnieroom,chikaroom);
+        Chika->Tick(rightdoorup,cameraMode,bonnieroom,freddyroom);
+        Foxy->Tick(cameraMode,(state==4),leftdoorup, leftdoorup);
 
         
 
@@ -229,7 +248,7 @@ int main(int argc, char* argv[]){
                 float mouseX, mouseY;
                 SDL_GetMouseState(&mouseX, &mouseY);
                 if(main_office){
-                     if(mouseX>=window_x*0.25 && mouseX <= window_x*0.65 && mouseY>=window_y*0.75 && mouseY<window_y && SDL_GetTicks()-previous_camera_time>=900){
+                     if(mouseX>=window_x*0.25 && mouseX <= window_x*0.65 && mouseY>=window_y*0.75 && mouseY<window_y && SDL_GetTicks()-previous_camera_time>=900 && percentage>0){
                         screen_camera = !screen_camera;
 
                         if(screen_camera){
@@ -274,6 +293,7 @@ int main(int argc, char* argv[]){
                 MIX_StopTrack(darknessTrack,0);
                 MIX_SetTrackAudio(sfxTrack, blip);
                 MIX_PlayTrack(sfxTrack, 0);
+                difficulty=1;
                }
 
                
@@ -284,7 +304,7 @@ int main(int argc, char* argv[]){
                 
                   int mouseX_button = event.button.x;
                 int mouseY_button = event.button.y;
-                if(mouseX_button>=0 && mouseX_button<=100 && mouseY_button>=360 && mouseY_button<=400){
+                if(mouseX_button>=0 && mouseX_button<=100 && mouseY_button>=360 && mouseY_button<=400 && percentage>0){
                         
                           if (!MIX_TrackPlaying(sfxTrack)) {
                         MIX_SetTrackAudio(sfxTrack, hum);
@@ -306,7 +326,7 @@ int main(int argc, char* argv[]){
                         }
                     }
 
-                if(mouseX_button>=0 && mouseX_button<=100 && mouseY_button>=290 && mouseY_button<=350){
+                if(mouseX_button>=0 && mouseX_button<=100 && mouseY_button>=290 && mouseY_button<=350 && percentage>0){
 
                      if (!MIX_TrackPlaying(sfxTrack)) {
                         MIX_SetTrackAudio(sfxTrack, door_close);
@@ -330,7 +350,7 @@ int main(int argc, char* argv[]){
                          leftDoorAnimStart = SDL_GetTicks(); 
                 }
 
-                if(mouseX_button>=1180 && mouseX_button<=1250 && mouseY_button>=290 && mouseY_button<=340){
+                if(mouseX_button>=1180 && mouseX_button<=1250 && mouseY_button>=290 && mouseY_button<=340 && percentage>0){
 
                        if (!MIX_TrackPlaying(sfxTrack)) {
                         MIX_SetTrackAudio(sfxTrack, door_close);
@@ -354,7 +374,7 @@ int main(int argc, char* argv[]){
                         rightDoorAnimStart = SDL_GetTicks();
                 }
 
-                if(mouseX_button>=1180 && mouseX_button<=1250 && mouseY_button>=360 && mouseY_button<=400){
+                if(mouseX_button>=1180 && mouseX_button<=1250 && mouseY_button>=360 && mouseY_button<=400 && percentage>0){
                       if (!MIX_TrackPlaying(sfxTrack)) {
                     MIX_SetTrackAudio(sfxTrack, hum);
                         MIX_PlayTrack(sfxTrack, 0);
@@ -383,12 +403,91 @@ int main(int argc, char* argv[]){
                 int mouseY_button = event.button.y;
 
                     if(mouseX_button>=1000 && mouseX_button<=1065 && mouseY_button>=405 && mouseY_button <= 435){
+                        //cam1a
                         MIX_SetTrackAudio(sfxTrack, blip);
                         MIX_PlayTrack(sfxTrack, 0);
+                        cameralocation=0;
+                        state =0;
+
+                        if(){}
+                        
+                
                     }
-                    if(mouseX_button>=900 && mouseX_button<=965 && mouseY_button>=415 && mouseY_button <= 445){
+                    if(mouseX_button>=990 && mouseX_button<=1055 && mouseY_button>=455 && mouseY_button <= 485){
+                        //cam1b
                         MIX_SetTrackAudio(sfxTrack, blip);
                         MIX_PlayTrack(sfxTrack, 0);
+                        cameralocation = 1;
+                        state = 1;
+                    }
+                    if(mouseX_button>=890 && mouseX_button<=955 && mouseY_button>=475 && mouseY_button <= 505){
+                        //cam5
+                        MIX_SetTrackAudio(sfxTrack, blip);
+                        MIX_PlayTrack(sfxTrack, 0);
+                        cameralocation = 2;
+                        state = 2;
+                    }
+                    if(mouseX_button>=1190 && mouseX_button<=1255 && mouseY_button>=475 && mouseY_button <= 505){
+                        //cam7
+                        MIX_SetTrackAudio(sfxTrack, blip);
+                        MIX_PlayTrack(sfxTrack, 0);
+                        cameralocation = 5;
+                        state= 3;
+                    }
+                    if(mouseX_button>=960 && mouseX_button<=1025 && mouseY_button>=525 && mouseY_button <= 555){
+                        //cam1c
+                        MIX_SetTrackAudio(sfxTrack, blip);
+                        MIX_PlayTrack(sfxTrack, 0);
+                        cameralocation = 3;
+                        state=4;
+                    }
+
+                    if(mouseX_button>=930 && mouseX_button<=995 && mouseY_button>=595 && mouseY_button <= 625){
+                        //cam3
+                        MIX_SetTrackAudio(sfxTrack, blip);
+                        MIX_PlayTrack(sfxTrack, 0);
+                        cameralocation = 8;
+                        state=5;
+                    }
+
+                    if(mouseX_button>=1190 && mouseX_button<=1255 && mouseY_button>=585 && mouseY_button <= 615){
+                        //cam6
+                        MIX_SetTrackAudio(sfxTrack, blip);
+                        MIX_PlayTrack(sfxTrack, 0);
+                        cameralocation = 6;
+                        state=6;
+                    }
+
+                    if(mouseX_button>=1000 && mouseX_button<=1065 && mouseY_button>=605 && mouseY_button <= 635){
+                        //cam2a
+                        MIX_SetTrackAudio(sfxTrack, blip);
+                        MIX_PlayTrack(sfxTrack, 0);
+                        cameralocation = 4;
+                        state=7;
+                    }
+
+                    if(mouseX_button>=1000 && mouseX_button<=1065 && mouseY_button>=645 && mouseY_button <= 675){
+                        //cam2b
+                        MIX_SetTrackAudio(sfxTrack, blip);
+                        MIX_PlayTrack(sfxTrack, 0);
+                        cameralocation = 10;
+                        state=8;
+                    }
+
+                    if(mouseX_button>=1100 && mouseX_button<=1165 && mouseY_button>=615 && mouseY_button <= 645){
+                        //cam4a
+                        MIX_SetTrackAudio(sfxTrack, blip);
+                        MIX_PlayTrack(sfxTrack, 0);
+                        cameralocation = 7;
+                        state=9;
+                    }
+
+                    if(mouseX_button>=1100 && mouseX_button<=1165 && mouseY_button>=645 && mouseY_button <= 675){
+                        //cam4b
+                        MIX_SetTrackAudio(sfxTrack, blip);
+                        MIX_PlayTrack(sfxTrack, 0);
+                        cameralocation = 9;
+                        state=10;
                     }
 
                 }
@@ -498,10 +597,13 @@ int main(int argc, char* argv[]){
                 percentage_texture = SDL_CreateTextureFromSurface(renderer,temp);
                 SDL_DestroySurface(temp);
             }
-
+            else{
+                ending=true;
+            }
+           
              
 
-            if(!MIX_TrackPlaying(buzzfan_track)){
+            if(!MIX_TrackPlaying(buzzfan_track) && percentage>0){
                    MIX_PlayTrack(buzzfan_track, props);
                    
                 
@@ -522,13 +624,16 @@ int main(int argc, char* argv[]){
         }
       
           
-             if(cameraMode){
-
-           // SDL_RenderTexture(renderer,main_camera_texture,NULL,&cameradst);
-        }
             
             if(!screen_camera){
-            mainoffice->RenderOffice(screen_camera,leftdoorbottom,leftdoorup,rightdoorbottom,rightdoorup);
+            
+            if(percentage>0){
+            mainoffice->RenderOffice(screen_camera,leftdoorbottom,leftdoorup,rightdoorbottom,rightdoorup,ending);
+            }
+            else{
+                mainoffice->RenderEnding();
+                
+            }
             }
             else{
                 if (animating) {
@@ -548,20 +653,22 @@ int main(int argc, char* argv[]){
 
         if(cameraMode){
 
-            mainoffice->RenderCamera();
+            mainoffice->RenderCamera(state,cameralocation);
 
-        //     SDL_RenderTexture(renderer,main_camera_texture,NULL,&cameradst);
         }
       
 
+        if(percentage>0){
         SDL_RenderTexture(renderer,text_texture,0,&timeText);
-            SDL_RenderTexture(renderer,text_texture1,0,&nightText);
+        SDL_RenderTexture(renderer,text_texture1,0,&nightText);
 
         SDL_RenderTexture(renderer,usage_texture,0,&usage);
         SDL_RenderTexture(renderer,power_left_texture,0,&powerleft);
         SDL_RenderTexture(renderer,powerbar[globalPowerUsage],0,&powerleft1);
         SDL_RenderTexture(renderer,percentage_texture,0,&percentage_coordinate);
         SDL_RenderTexture(renderer,flipper_texture,0,&flipper_coordinate);
+        }
+        
         }
         
 
@@ -584,7 +691,7 @@ int main(int argc, char* argv[]){
     MIX_DestroyAudio(staticSound2);
     MIX_DestroyAudio(blip);
     MIX_DestroyMixer(mixer);
-        TTF_CloseFont(font);
+    TTF_CloseFont(font);
     MIX_Quit();
     return 0;
 }
