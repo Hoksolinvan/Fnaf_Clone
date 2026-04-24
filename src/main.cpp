@@ -7,6 +7,7 @@
 const int window_x = 1280;
 const int window_y = 720;
 const int delayPerItem = 25;
+const int jumpscaredelay=200;
 bool running = true;
 bool main_menu = true;
 bool main_game = false;
@@ -31,6 +32,8 @@ SDL_FRect usage = {20,640,100,35};
 SDL_FRect powerleft1 = {140,640,100,35};
 SDL_FRect percentage_coordinate = {135,590,100,35};
 SDL_FRect flipper_coordinate = {300,590,600,100};
+SDL_FRect deathdest = {0,0,1280,720};
+
 bool rightdoorbottom = false;
 bool rightdoorup = false;
 bool inner_E = false;
@@ -39,10 +42,11 @@ SDL_Texture* powerbar[5];
 int cur_default = 5000;
 int state =0;
 bool ending=false;
-
+Uint64 lastAiTick = 0;
+Uint64 deathanimFrame=0;
 
 int percentage = 100;
-int difficulty=1;
+int difficulty=5;
 int cameralocation = 0;
 
 int main(int argc, char* argv[]){
@@ -53,6 +57,7 @@ int main(int argc, char* argv[]){
     std::uniform_int_distribution<int> dist2(0, 9);
     std::uniform_int_distribution<int> dist3(0,14);
     std::uniform_int_distribution<int> random_number(0,100);
+    std::bernoulli_distribution d(0.25);
     SDL_Event event;
     
 
@@ -114,7 +119,10 @@ int main(int argc, char* argv[]){
     MIX_Audio* night1 = MIX_LoadAudio(mixer,"assets/sounds/voiceover1c.wav",false);
     MIX_Audio* hum = MIX_LoadAudio(mixer,"assets/sounds/BallastHumMedium2.wav",false);
     MIX_Audio* door_close = MIX_LoadAudio(mixer,"assets/sounds/SFXBible_12478.wav",false);
-    
+    MIX_Audio* bonniescream = MIX_LoadAudio(mixer,"assets/sounds/XSCREAM.wav",false);
+
+
+    MIX_Track* bonniejumpscaretrack = MIX_CreateTrack(mixer);
     MIX_Track* sfxTrack = MIX_CreateTrack(mixer);
     MIX_Track* sfxTrack1 = MIX_CreateTrack(mixer);
     MIX_Track* darknessTrack = MIX_CreateTrack(mixer);
@@ -205,31 +213,93 @@ int main(int argc, char* argv[]){
     }
 
 
+    SDL_Texture* BonnieJumpscare[11];
+
+    const char* BonnieJumpscarePath[11] = {
+        "assets/Jumpscares/Bonnie/291.png",
+        "assets/Jumpscares/Bonnie/293.png",
+        "assets/Jumpscares/Bonnie/294.png",
+        "assets/Jumpscares/Bonnie/295.png",
+        "assets/Jumpscares/Bonnie/296.png",
+        "assets/Jumpscares/Bonnie/297.png",
+        "assets/Jumpscares/Bonnie/298.png",
+        "assets/Jumpscares/Bonnie/299.png",
+        "assets/Jumpscares/Bonnie/300.png",
+        "assets/Jumpscares/Bonnie/301.png",
+        "assets/Jumpscares/Bonnie/303.png"
+    };
+
+    for(int i=0; i<11;i++){
+        SDL_Surface* temp = IMG_Load(BonnieJumpscarePath[i]);
+        BonnieJumpscare[i]=SDL_CreateTextureFromSurface(renderer,temp);
+        SDL_DestroySurface(temp);
+    }
+
+
     
     SDL_DestroySurface(textSurface);
     SDL_DestroySurface(textSurface1);
     SDL_DestroySurface(usage_icon);
     SDL_DestroySurface(power_left);
    
-    Animatronic* Bonnie = new Bonnie(difficulty);
-    Animatronic* Freddy = new Freddy(difficulty);
-    Animatronic* Chika = new Chika(difficulty);
-    Animatronic* Foxy = new Foxy(difficulty);
+    Animatronic* bonnie = new Bonnie(difficulty);
+    Animatronic* freddy = new Freddy(difficulty);
+    Animatronic* chika = new Chika(difficulty);
+    Animatronic* foxy = new Foxy(difficulty);
     
 
     while(running){
 
-        int chikaroom = Chika->isInRoom();
-        int bonnieroom = Bonnie->isInRoom();
-        int freddyroom = Freddy->isInRoom();
-    
 
         frame++;
 
-        Bonnie->Tick(leftdoorup,cameraMode,chikaroom,freddyroom);
-        Freddy->Tick(rightdoorup,cameraMode,bonnieroom,chikaroom);
-        Chika->Tick(rightdoorup,cameraMode,bonnieroom,freddyroom);
-        Foxy->Tick(cameraMode,(state==4),leftdoorup, leftdoorup);
+        int chikaroom = chika->isInRoom();
+        int bonnieroom = bonnie->isInRoom();
+        int freddyroom = freddy->isInRoom();
+
+       if (bonnie->playerDeath) {
+
+    Uint64 elapsed = SDL_GetTicks() - animStartFrame;
+
+    deathanimFrame = elapsed / 50;
+
+    if (deathanimFrame >= 12) {
+
+        deathanimFrame = 11;
+    } else {
+        // animation finished
+        main_office = false;
+        main_menu = true;
+    }
+
+    SDL_RenderTexture(renderer, BonnieJumpscare[deathanimFrame], 0, &deathdest);
+
+    // play sound ONCE
+    if (!MIX_TrackPlaying(bonniejumpscaretrack) && !main_menu) {
+        MIX_SetTrackAudio(bonniejumpscaretrack, bonniescream);
+        MIX_PlayTrack(bonniejumpscaretrack, 0);
+    }
+}
+        else if(freddy->playerDeath){
+
+        }
+        else if(bonnie->playerDeath){
+
+        }
+        else if(foxy->playerDeath){
+
+        }
+
+
+
+        if(SDL_GetTicks()-lastAiTick >=500 && main_office){
+        bonnie->Tick(!leftdoorup,cameraMode,chikaroom,freddyroom);
+        freddy->Tick(rightdoorup,cameraMode,bonnieroom,chikaroom);
+        chika->Tick(rightdoorup,cameraMode,bonnieroom,freddyroom);
+        foxy->Tick(cameraMode,(state==4),leftdoorup, leftdoorup);
+            lastAiTick = SDL_GetTicks();
+            std::cout << bonnieroom << " " << chikaroom << " " << freddyroom << "\n";
+        }
 
         
 
@@ -293,7 +363,7 @@ int main(int argc, char* argv[]){
                 MIX_StopTrack(darknessTrack,0);
                 MIX_SetTrackAudio(sfxTrack, blip);
                 MIX_PlayTrack(sfxTrack, 0);
-                difficulty=1;
+
                }
 
                
@@ -407,9 +477,35 @@ int main(int argc, char* argv[]){
                         MIX_SetTrackAudio(sfxTrack, blip);
                         MIX_PlayTrack(sfxTrack, 0);
                         cameralocation=0;
-                        state =0;
+                        
 
-                        if(){}
+                        
+                
+                        
+                        
+                        
+                        if(bonnieroom>=1 && chikaroom>=1 && freddyroom>=3){
+                            state=15;
+                        }
+                        else if(bonnieroom>=1 && chikaroom>=1){
+                            state = 13; //freddy only
+                        }
+                        else if(bonnieroom>=1 && chikaroom>=1){
+                            state=14; //freddy only
+                        }
+                        else if(bonnieroom>=0 && chikaroom>=1){
+                            state = 12;
+                        }
+                        else if(bonnieroom>=1 && chikaroom>=0){
+                            state = 11;
+                           
+                        }
+                        else{
+                            state = 0;
+                           
+                        }
+
+                        //if(){}
                         
                 
                     }
@@ -418,7 +514,30 @@ int main(int argc, char* argv[]){
                         MIX_SetTrackAudio(sfxTrack, blip);
                         MIX_PlayTrack(sfxTrack, 0);
                         cameralocation = 1;
+
+
+                        
+
+                        if(bonnieroom>=2 && bonnieroom <3){
+                            state=18;
+                        }
+                        else if(bonnieroom>=1 && bonnieroom < 2){
+                            state=16;
+                        }
+                        else if(chikaroom>=2 && bonnieroom<3){
+                            state=19;
+                        }
+                        else if(chikaroom>=1 && chikaroom < 2){
+                            state=17;
+                        }
+                        
+                        else if(freddyroom >=3 && freddyroom < 4){
+                            state = 20;
+                        }
+
+                        else{
                         state = 1;
+                        }
                     }
                     if(mouseX_button>=890 && mouseX_button<=955 && mouseY_button>=475 && mouseY_button <= 505){
                         //cam5
@@ -426,13 +545,46 @@ int main(int argc, char* argv[]){
                         MIX_PlayTrack(sfxTrack, 0);
                         cameralocation = 2;
                         state = 2;
+
+
+                        if(bonnieroom>=4 && bonnieroom < 5){
+                            state = 23;
+                        }
+                        else if(bonnieroom >=3 && bonnieroom < 4){
+
+                            if(d(gen)< 0.25){
+                                state =22;
+
+                            }
+                            else{
+                                state=21;
+                            }
+                       
+                        
+                        }
+                       
                     }
                     if(mouseX_button>=1190 && mouseX_button<=1255 && mouseY_button>=475 && mouseY_button <= 505){
                         //cam7
                         MIX_SetTrackAudio(sfxTrack, blip);
                         MIX_PlayTrack(sfxTrack, 0);
                         cameralocation = 5;
+
+                        if(chikaroom>=4 && chikaroom< 4){
+                            state=25;
+                        }
+                        else if(chikaroom >= 3 && chikaroom < 4){
+                           
+                                state = 24;
+                           
+                        }
+                        else if(freddyroom>=4 && freddyroom<5){
+                            state = 26;
+                        }
+
+                        else{
                         state= 3;
+                        }
                     }
                     if(mouseX_button>=960 && mouseX_button<=1025 && mouseY_button>=525 && mouseY_button <= 555){
                         //cam1c
@@ -440,6 +592,8 @@ int main(int argc, char* argv[]){
                         MIX_PlayTrack(sfxTrack, 0);
                         cameralocation = 3;
                         state=4;
+
+                        
                     }
 
                     if(mouseX_button>=930 && mouseX_button<=995 && mouseY_button>=595 && mouseY_button <= 625){
@@ -447,7 +601,14 @@ int main(int argc, char* argv[]){
                         MIX_SetTrackAudio(sfxTrack, blip);
                         MIX_PlayTrack(sfxTrack, 0);
                         cameralocation = 8;
-                        state=5;
+                       
+
+                        if(bonnieroom >=5 && bonnieroom < 6){
+                            state=27;
+                        }
+                        else{
+                            state=5;
+                        }
                     }
 
                     if(mouseX_button>=1190 && mouseX_button<=1255 && mouseY_button>=585 && mouseY_button <= 615){
@@ -455,7 +616,10 @@ int main(int argc, char* argv[]){
                         MIX_SetTrackAudio(sfxTrack, blip);
                         MIX_PlayTrack(sfxTrack, 0);
                         cameralocation = 6;
+
+
                         state=6;
+                        
                     }
 
                     if(mouseX_button>=1000 && mouseX_button<=1065 && mouseY_button>=605 && mouseY_button <= 635){
@@ -463,7 +627,14 @@ int main(int argc, char* argv[]){
                         MIX_SetTrackAudio(sfxTrack, blip);
                         MIX_PlayTrack(sfxTrack, 0);
                         cameralocation = 4;
+
+
+                        if(bonnieroom>=6 && bonnieroom<7){
+                            state=28;
+                        }
+                        else{
                         state=7;
+                        }
                     }
 
                     if(mouseX_button>=1000 && mouseX_button<=1065 && mouseY_button>=645 && mouseY_button <= 675){
@@ -471,7 +642,14 @@ int main(int argc, char* argv[]){
                         MIX_SetTrackAudio(sfxTrack, blip);
                         MIX_PlayTrack(sfxTrack, 0);
                         cameralocation = 10;
+
+
+                        if(bonnieroom>=7 && bonnieroom<8){
+                            state=29;
+                        }
+                        else{
                         state=8;
+                        }
                     }
 
                     if(mouseX_button>=1100 && mouseX_button<=1165 && mouseY_button>=615 && mouseY_button <= 645){
@@ -479,7 +657,17 @@ int main(int argc, char* argv[]){
                         MIX_SetTrackAudio(sfxTrack, blip);
                         MIX_PlayTrack(sfxTrack, 0);
                         cameralocation = 7;
-                        state=9;
+
+                        if(chikaroom>=7 && chikaroom<8){
+                            state=31;
+                        }
+                        else if(chikaroom>=6 && chikaroom<7){
+                            state=30;
+                        }
+                        else{
+                            state=9;
+                        }
+                        
                     }
 
                     if(mouseX_button>=1100 && mouseX_button<=1165 && mouseY_button>=645 && mouseY_button <= 675){
@@ -487,7 +675,13 @@ int main(int argc, char* argv[]){
                         MIX_SetTrackAudio(sfxTrack, blip);
                         MIX_PlayTrack(sfxTrack, 0);
                         cameralocation = 9;
-                        state=10;
+
+                        if(chikaroom>=8 && chikaroom<9){
+                            state=32;
+                        }
+                        else{
+                             state=10;
+                        }
                     }
 
                 }

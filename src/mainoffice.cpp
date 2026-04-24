@@ -679,7 +679,77 @@ else if (dstCam.x <= -dstCam.w / 6) {
         case 10:
         SDL_RenderTexture(renderer,E_Hall_Corner[0],0,&dstCam);
         break;
-    
+        case 11: 
+        SDL_RenderTexture(renderer,Showstage[2],0,&dstCam);
+        break;
+        case 12:
+        SDL_RenderTexture(renderer,Showstage[3],0,&dstCam);
+        break;
+        case 13:
+        SDL_RenderTexture(renderer,Showstage[4],0,&dstCam);
+        break;
+        case 14:
+        SDL_RenderTexture(renderer,Showstage[5],0,&dstCam);
+        break;
+        case 15:
+        SDL_RenderTexture(renderer,Showstage[6],0,&dstCam);
+        break;
+        case 16:
+        SDL_RenderTexture(renderer,DiningHall[1],0,&dstCam);
+        break;
+        case 17:
+        SDL_RenderTexture(renderer,DiningHall[3],0,&dstCam);
+        break;
+        case 18:
+        SDL_RenderTexture(renderer,DiningHall[2],0,&dstCam);
+        break;
+        case 19:
+        SDL_RenderTexture(renderer,DiningHall[4],0,&dstCam);
+        break;
+        case 20:
+        SDL_RenderTexture(renderer,DiningHall[5],0,&dstCam);
+        break;
+        case 21:
+        SDL_RenderTexture(renderer,Backstage[2],0,&dstCam);
+        break;
+        case 22:
+        SDL_RenderTexture(renderer,Backstage[1],0,&dstCam);
+        break;
+        case 23:
+        SDL_RenderTexture(renderer,Backstage[4],0,&dstCam);
+        break;
+        case 24:
+        SDL_RenderTexture(renderer,Restrooms[1],0,&dstCam);
+        break;
+        case 25:
+        SDL_RenderTexture(renderer,Restrooms[2],0,&dstCam);
+        break;
+        case 26:
+        SDL_RenderTexture(renderer,Restrooms[3],0,&dstCam);
+        break;
+        case 27:
+        SDL_RenderTexture(renderer,Supply_closet[1],0,&dstCam);
+        break;
+        case 28:
+        if(animstart%2){
+        SDL_RenderTexture(renderer,WestHall[1],0,&dstCam);
+        }
+        else{
+            SDL_RenderTexture(renderer,WestHall[2],0,&dstCam);
+        }
+        break;
+        case 29:
+            SDL_RenderTexture(renderer,W_Hall_Corner[2],0,&dstCam);
+        break;
+        case 30:
+        SDL_RenderTexture(renderer,East_Hall[2],0,&dstCam);
+        break;
+        case 31:
+        SDL_RenderTexture(renderer,East_Hall[2],0,&dstCam);
+        break;
+        case 32:
+        SDL_RenderTexture(renderer,E_Hall_Corner[1],0,&dstCam);
+        break;
     }
          SDL_RenderTexture(renderer,main_camera_texture,0,&cameradst2);
 
