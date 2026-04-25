@@ -32,7 +32,7 @@ public:
             return;
         }
 
-        if(inRoom == 8 && OfficeDoor){
+        if(inRoom == 9 && OfficeDoor){
             playerDeath = true;
             return;
         }

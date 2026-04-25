@@ -22,7 +22,7 @@ SDL_Texture* camera_array[11];
 bool animating =false;
 bool cameraMode = false;
 int animFrame = 0;
-Uint64 animStartFrame = SDL_GetTicks();
+Uint64 animStartFrame = 0;
 bool leftdoorbottom =false;
 bool leftdoorup = false;
 SDL_FRect timeText = {1120, 10, 125,50};
@@ -33,7 +33,7 @@ SDL_FRect powerleft1 = {140,640,100,35};
 SDL_FRect percentage_coordinate = {135,590,100,35};
 SDL_FRect flipper_coordinate = {300,590,600,100};
 SDL_FRect deathdest = {0,0,1280,720};
-
+bool soundplayed = false;
 bool rightdoorbottom = false;
 bool rightdoorup = false;
 bool inner_E = false;
@@ -43,7 +43,8 @@ int cur_default = 5000;
 int state =0;
 bool ending=false;
 Uint64 lastAiTick = 0;
-Uint64 deathanimFrame=0;
+int deathanimFrame=0;
+
 
 int percentage = 100;
 int difficulty=5;
@@ -120,6 +121,8 @@ int main(int argc, char* argv[]){
     MIX_Audio* hum = MIX_LoadAudio(mixer,"assets/sounds/BallastHumMedium2.wav",false);
     MIX_Audio* door_close = MIX_LoadAudio(mixer,"assets/sounds/SFXBible_12478.wav",false);
     MIX_Audio* bonniescream = MIX_LoadAudio(mixer,"assets/sounds/XSCREAM.wav",false);
+    MIX_Audio* windowscare  = MIX_LoadAudio(mixer,"assets/sounds/windowscare.wav",false);
+
 
 
     MIX_Track* bonniejumpscaretrack = MIX_CreateTrack(mixer);
@@ -235,7 +238,32 @@ int main(int argc, char* argv[]){
         SDL_DestroySurface(temp);
     }
 
+    SDL_Texture* ChikaJumpscare[16];
+    const char* ChikaJumpscarePath[16] = {
+        "assets/Jumpscares/Chica/65.png",
+         "assets/Jumpscares/Chica/69.png",
+          "assets/Jumpscares/Chica/216.png",
+           "assets/Jumpscares/Chica/228.png",
+            "assets/Jumpscares/Chica/229.png",
+             "assets/Jumpscares/Chica/230.png",
+              "assets/Jumpscares/Chica/231.png",
+               "assets/Jumpscares/Chica/232.png",
+                "assets/Jumpscares/Chica/233.png",
+                 "assets/Jumpscares/Chica/234.png",
+                  "assets/Jumpscares/Chica/235.png",
+                   "assets/Jumpscares/Chica/236.png",
+                    "assets/Jumpscares/Chica/237.png",
+                     "assets/Jumpscares/Chica/239.png",
+                      "assets/Jumpscares/Chica/279.png",
+                       "assets/Jumpscares/Chica/281.png"
+    };
 
+    for(int i=0; i<16;i++){
+        SDL_Surface* temp = IMG_Load(ChikaJumpscarePath[i]);
+        ChikaJumpscare[i]= SDL_CreateTextureFromSurface(renderer,temp);
+        SDL_DestroySurface(temp);
+
+    }
     
     SDL_DestroySurface(textSurface);
     SDL_DestroySurface(textSurface1);
@@ -246,6 +274,7 @@ int main(int argc, char* argv[]){
     Animatronic* freddy = new Freddy(difficulty);
     Animatronic* chika = new Chika(difficulty);
     Animatronic* foxy = new Foxy(difficulty);
+
     
 
     while(running){
@@ -257,45 +286,14 @@ int main(int argc, char* argv[]){
         int bonnieroom = bonnie->isInRoom();
         int freddyroom = freddy->isInRoom();
 
-       if (bonnie->playerDeath) {
-
-    Uint64 elapsed = SDL_GetTicks() - animStartFrame;
-
-    deathanimFrame = elapsed / 50;
-
-    if (deathanimFrame >= 12) {
-
-        deathanimFrame = 11;
-    } else {
-        // animation finished
-        main_office = false;
-        main_menu = true;
-    }
-
-    SDL_RenderTexture(renderer, BonnieJumpscare[deathanimFrame], 0, &deathdest);
-
-    // play sound ONCE
-    if (!MIX_TrackPlaying(bonniejumpscaretrack) && !main_menu) {
-        MIX_SetTrackAudio(bonniejumpscaretrack, bonniescream);
-        MIX_PlayTrack(bonniejumpscaretrack, 0);
-    }
-}
-        else if(freddy->playerDeath){
-
-        }
-        else if(bonnie->playerDeath){
-
-        }
-        else if(foxy->playerDeath){
-
-        }
+       
 
 
 
-        if(SDL_GetTicks()-lastAiTick >=500 && main_office){
+        if(SDL_GetTicks()-lastAiTick >=5000 && main_office){
         bonnie->Tick(!leftdoorup,cameraMode,chikaroom,freddyroom);
         freddy->Tick(rightdoorup,cameraMode,bonnieroom,chikaroom);
-        chika->Tick(rightdoorup,cameraMode,bonnieroom,freddyroom);
+        chika->Tick(!rightdoorup,cameraMode,bonnieroom,freddyroom);
         foxy->Tick(cameraMode,(state==4),leftdoorup, leftdoorup);
             lastAiTick = SDL_GetTicks();
             std::cout << bonnieroom << " " << chikaroom << " " << freddyroom << "\n";
@@ -377,8 +375,16 @@ int main(int argc, char* argv[]){
                 if(mouseX_button>=0 && mouseX_button<=100 && mouseY_button>=360 && mouseY_button<=400 && percentage>0){
                         
                           if (!MIX_TrackPlaying(sfxTrack)) {
+
+                        if(bonnieroom==8){
+                            MIX_SetTrackAudio(sfxTrack,windowscare);
+                            MIX_PlayTrack(sfxTrack, 0);
+                        }
+                        else{
                         MIX_SetTrackAudio(sfxTrack, hum);
-                        MIX_PlayTrack(sfxTrack, 0);
+                         MIX_PlayTrack(sfxTrack, 0);
+                        }
+                       
                           }
                           else{
                             MIX_StopTrack(sfxTrack,0);
@@ -445,11 +451,19 @@ int main(int argc, char* argv[]){
                 }
 
                 if(mouseX_button>=1180 && mouseX_button<=1250 && mouseY_button>=360 && mouseY_button<=400 && percentage>0){
-                      if (!MIX_TrackPlaying(sfxTrack)) {
-                    MIX_SetTrackAudio(sfxTrack, hum);
-                        MIX_PlayTrack(sfxTrack, 0);
-                      }
-                       else{
+                        if (!MIX_TrackPlaying(sfxTrack)) {
+
+                        if(chikaroom==8){
+                            MIX_SetTrackAudio(sfxTrack,windowscare);
+                            MIX_PlayTrack(sfxTrack, 0);
+                        }
+                        else{
+                        MIX_SetTrackAudio(sfxTrack, hum);
+                         MIX_PlayTrack(sfxTrack, 0);
+                        }
+                       
+                          }
+                          else{
                             MIX_StopTrack(sfxTrack,0);
                           }
 
@@ -480,11 +494,9 @@ int main(int argc, char* argv[]){
                         
 
                         
-                
-                        
-                        
-                        
-                        if(bonnieroom>=1 && chikaroom>=1 && freddyroom>=3){
+                         if(bonnieroom>=1 && chikaroom>=1 && freddyroom>=3){
+                            // if(frame)
+                            // SDL_RenderTexture(renderer,NULL,0,&deathdest);
                             state=15;
                         }
                         else if(bonnieroom>=1 && chikaroom>=1){
@@ -501,9 +513,13 @@ int main(int argc, char* argv[]){
                            
                         }
                         else{
-                            state = 0;
-                           
+                            state=0;
                         }
+                        
+                        
+                        
+                           
+                        
 
                         //if(){}
                         
@@ -696,8 +712,111 @@ int main(int argc, char* argv[]){
 
         }
 
+        if (bonnie->playerDeath) {
+        main_office=false;
+
+    Uint32 elapsed = SDL_GetTicks() - animStartFrame;
+
+    deathanimFrame = elapsed / 25;
+
+    if(!(deathanimFrame%150)) {
+        // animation finished
+        main_game = true;
+        main_menu = true;
+        soundplayed=false;
+        main_office = false;
+        cameraMode = false;
+        default_main_menu = true;
+        leftdoorbottom = false;
+        rightdoorbottom = false;
+        leftdoorup = false;
+        rightdoorup = false;
+        percentage = 100;
+        globalPowerUsage=0;
+
+
+
+        std::string temp_string_percentage = "100%";
+
+        SDL_DestroyTexture(percentage_texture);
+        SDL_Surface* temp = TTF_RenderText_Blended(font,temp_string_percentage.c_str(),0,color);
+        percentage_texture = SDL_CreateTextureFromSurface(renderer,temp);
+        SDL_DestroySurface(temp);
+        MIX_StopTrack(buzzfan_track,0);
+        delete bonnie;
+        delete freddy;
+        delete chika;
+        delete foxy;
+        bonnie = new Bonnie(difficulty);
+        chika = new Chika(difficulty);
+        freddy = new Freddy(difficulty);
+        foxy = new Foxy(difficulty);
+    }
+
+    SDL_RenderTexture(renderer, BonnieJumpscare[deathanimFrame % 11], 0, &deathdest);
+    
+    // play sound ONCE
+    if (!MIX_TrackPlaying(bonniejumpscaretrack) && !main_menu && !soundplayed) {
+        MIX_SetTrackAudio(bonniejumpscaretrack, bonniescream);
+        MIX_PlayTrack(bonniejumpscaretrack, 0);
+        soundplayed = true;
+    }
+}
+        else if(freddy->playerDeath){
+
+        }
+        else if(chika->playerDeath){
+
+
+    Uint32 elapsed = SDL_GetTicks() - animStartFrame;
+
+    deathanimFrame = elapsed / 25;
+
+    if(!(deathanimFrame%250)) {
+        // animation finished
+        main_game = true;
+        main_menu = true;
+        soundplayed=false;
+        main_office = false;
+        cameraMode = false;
+        default_main_menu = true;
+        leftdoorbottom = false;
+        rightdoorbottom = false;
+        leftdoorup = false;
+        rightdoorup = false;
+        globalPowerUsage=0;
+        percentage = 100;
+        delete bonnie;
+        delete freddy;
+        delete chika;
+        delete foxy;
+        bonnie = new Bonnie(difficulty);
+        chika = new Chika(difficulty);
+        freddy = new Freddy(difficulty);
+        foxy = new Foxy(difficulty);
+        MIX_StopTrack(buzzfan_track,0);
+        std::string temp_string_percentage = "100%";
+        SDL_DestroyTexture(percentage_texture);
+        SDL_Surface* temp = TTF_RenderText_Blended(font,temp_string_percentage.c_str(),0,color);
+        percentage_texture = SDL_CreateTextureFromSurface(renderer,temp);
+        SDL_DestroySurface(temp);
+    }
+
+    SDL_RenderTexture(renderer, ChikaJumpscare[deathanimFrame % 16], 0, &deathdest);
+    
+    // play sound ONCE
+    if (!MIX_TrackPlaying(bonniejumpscaretrack) && !main_menu && !soundplayed) {
+        MIX_SetTrackAudio(bonniejumpscaretrack, bonniescream);
+        MIX_PlayTrack(bonniejumpscaretrack, 0);
+        soundplayed = true;
+    }
+
+        }
+        else if(foxy->playerDeath){
+
+        }
         
-        if(main_menu){
+        else if(main_menu){
 
        
 
@@ -780,6 +899,8 @@ int main(int argc, char* argv[]){
           
             cur_default = 5000 - globalPowerUsage*1000;
 
+            
+
         
             if(!(frame%cur_default) && percentage>0){
                 percentage--;
@@ -822,7 +943,7 @@ int main(int argc, char* argv[]){
             if(!screen_camera){
             
             if(percentage>0){
-            mainoffice->RenderOffice(screen_camera,leftdoorbottom,leftdoorup,rightdoorbottom,rightdoorup,ending);
+            mainoffice->RenderOffice(screen_camera,leftdoorbottom,leftdoorup,rightdoorbottom,rightdoorup,ending,(bonnieroom==8),(chikaroom==8));
             }
             else{
                 mainoffice->RenderEnding();
@@ -846,6 +967,8 @@ int main(int argc, char* argv[]){
 }
 
         if(cameraMode){
+
+           
 
             mainoffice->RenderCamera(state,cameralocation);
 

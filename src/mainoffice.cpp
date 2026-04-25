@@ -448,7 +448,7 @@ void MainOffice::initOffice(){
 }
 
 
-void MainOffice::RenderOffice(bool screen_camera, bool leftdoorbottom, bool leftdoorup, bool rightdoorbottom, bool rightdoorup, bool ending){
+void MainOffice::RenderOffice(bool screen_camera, bool leftdoorbottom, bool leftdoorup, bool rightdoorbottom, bool rightdoorup, bool ending, bool bonnie, bool chika){
 
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
@@ -485,12 +485,13 @@ void MainOffice::RenderOffice(bool screen_camera, bool leftdoorbottom, bool left
 
 
     if(!leftdoorbottom && !rightdoorbottom){
+    
    SDL_RenderTexture(renderer,officeTextures[1],NULL,&dst);
 
     }
     else if(leftdoorbottom && !rightdoorbottom){
     
-
+    if(!bonnie){
      Uint32 elapsed = SDL_GetTicks() - animstart;
     animFrame = (elapsed / delay) %2;
 
@@ -500,12 +501,24 @@ void MainOffice::RenderOffice(bool screen_camera, bool leftdoorbottom, bool left
         animFrame = 1;
     }
     SDL_RenderTexture(renderer,officeTextures[animFrame],NULL,&dst);
+}
+else{
+    Uint32 elapsed = SDL_GetTicks()-animstart;
+    animFrame = (elapsed/delay) % 2;
+
+    // if(!MIX_TrackPlaying(lightdoor)){
+    //     MIX_SetTrackAudio(lightdoor,windowscare);
+    //     MIX_PlayTrack(lightdoor, 0);
+    // }
+
+    SDL_RenderTexture(renderer,officeTextures[animFrame? 1: 3],NULL,&dst);
+}
 
 }
     
     else if(!leftdoorbottom && rightdoorbottom ){
 
-
+    if(!chika){
     Uint32 elapsed_time = SDL_GetTicks() - animstart;
     animFrame = (elapsed_time/delay) % 2 + 1;
 
@@ -514,6 +527,15 @@ void MainOffice::RenderOffice(bool screen_camera, bool leftdoorbottom, bool left
     }
     SDL_RenderTexture(renderer,officeTextures[animFrame],NULL,&dst);
     }
+    else{
+        Uint32 elapsed_time = SDL_GetTicks()-animstart;
+        animFrame = (elapsed_time/delay) % 2;
+
+        
+
+        SDL_RenderTexture(renderer,officeTextures[animFrame*4],NULL,&dst);
+    }
+}
 
     else if(leftdoorbottom && rightdoorbottom){
         Uint32 elapsed_time = SDL_GetTicks() - animstart;

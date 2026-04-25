@@ -31,7 +31,7 @@ class MainOffice{
     }
 
     void initOffice();
-    void RenderOffice(bool screen_camera, bool leftdoorbottom=false, bool leftdoorup=false, bool rightdoorbottom=false, bool rightdoorup=false, bool ending=false);
+    void RenderOffice(bool screen_camera, bool leftdoorbottom=false, bool leftdoorup=false, bool rightdoorbottom=false, bool rightdoorup=false, bool ending=false, bool bonnie=false, bool chika=false);
     void RenderCamera(int state=0,int cameralocation = 0);
     void RenderEnding();
 
@@ -87,18 +87,6 @@ class MainOffice{
     SDL_FRect cameradst2={875,400,400,300};
     SDL_FRect dest = {0,0,1280,720};
     SDL_FRect topLeft = {10,10,50,50};
-
-    // SDL_FRect cam1a = {500,405,65,30};
-    // SDL_FRect cam1b = {990,455,65,30};
-    // SDL_FRect cam5 = {890,475,65,30};
-    // SDL_FRect cam7 = {1190,475,65,30};
-    // SDL_FRect cam1c = {960,525,65,30};
-    // SDL_FRect cam3 = {930,595,65,30};
-    // SDL_FRect cam6 = {1190,585,65,30};
-    // SDL_FRect cam2a = {1000,605,65,30};
-    // SDL_FRect cam2b = {1000,645,65,30};
-    // SDL_FRect cam4a = {1100,615,65,30};
-    // SDL_FRect cam4b = {1100,645,65,30};
     
     SDL_FRect rightdoor={static_cast<float>(width+260),0,223,720};
     
