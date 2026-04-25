@@ -12,7 +12,7 @@ This project was built entirely from scratch without the use of a game engine, f
 
 <br />
 
-# How to run the game 🛠️<img width="1600" height="720" alt="303" src="https://github.com/user-attachments/assets/2aeb6103-ef19-4bc9-b627-192e70c650fe" />
+# How to run the game 🛠️
 
 ```shell
 mkdir build
@@ -32,8 +32,13 @@ mkdir build && cd build && cmake .. && make && ./fnaf1
 # Demo 🎮
 
 <img width="1600" height="720" alt="2" src="https://github.com/user-attachments/assets/66fb3157-26e8-4a87-b542-66f07e8ff1fc" />
+<br/>
 <img width="1600" height="720" alt="233" src="https://github.com/user-attachments/assets/29d667e2-ea16-4be6-8127-4110f025043c" />
+<br/>
 <img width="1600" height="720" alt="303" src="https://github.com/user-attachments/assets/641cf046-3bf0-48d8-9cc8-711a6ab93901" />
+<br/>
+<img width="1280" height="720" alt="520" src="https://github.com/user-attachments/assets/a82e7dd2-0dca-4ba3-9683-a71db6e03c1b" />
+
 
 
 
