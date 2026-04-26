@@ -66,4 +66,4 @@ After you've successfully built it once following the steps outlined above, then
 
 # Miscellaneous
 
-....
+vcpkg & conan & hunter manifest not required to run this application.
