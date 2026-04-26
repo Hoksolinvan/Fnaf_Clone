@@ -20,11 +20,16 @@ cd build
 cmake ..
 make && ./fnaf1
 ```
-For a one-liner:
+For a one-liner first time set up/configuration build of the game:
 ```shell
 mkdir build && cd build && cmake .. && make && ./fnaf1
 ```
 
+After you've successfully built it once following the steps outlined above, then you can just launch it like a normal application as long as you have the executable file. 
+
+```bash
+./fnaf1
+```
 
 <br />
 
