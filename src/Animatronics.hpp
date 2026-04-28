@@ -147,7 +147,7 @@ public:
 
 private:
     int aiLevel;
-    int inRoom;
+    int inRoom=6;
     int doorBlockTimer;
 };
 

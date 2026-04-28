@@ -1,9 +1,31 @@
 #include "mainmenu.h"
 
+
+extern int difficulty;
+int read_in_difficulty=1;
+
+
+void readFromfile(){
+    std::ifstream MyFile("progress.txt");
+
+    if(!MyFile.is_open()){
+        return;
+    }
+    std::string line;
+    MyFile >> line;
+    read_in_difficulty= std::stoi(line);
+
+    return;
+
+}
+
 void MainMenu::init_menu(SDL_Renderer* renderer){
 
-   
+    readFromfile();
     TTF_Font *font = TTF_OpenFont("external/textfiles/consolas.ttf",64);
+    std::string cont = "Continue: Night " + std::to_string(read_in_difficulty);
+    std::string cont2 = ">> Continue: Night " + std::to_string(read_in_difficulty);
+
     if(!(font)){
         std::cerr << SDL_GetError() << "\n";
     }
@@ -25,7 +47,7 @@ void MainMenu::init_menu(SDL_Renderer* renderer){
 
     SDL_Surface* textSurface3 = TTF_RenderText_Blended(
         font,
-        "Continue",
+        cont.c_str(),
         0,
         color
     );
@@ -39,7 +61,7 @@ void MainMenu::init_menu(SDL_Renderer* renderer){
 
     SDL_Surface* textSurface5 = TTF_RenderText_Blended(
         font,
-        ">> Continue",
+        cont2.c_str(),
         0,
         color
     );
@@ -111,16 +133,20 @@ bool MainMenu::render_text(){
 
     if((mouseX>=dst2.x && mouseX<=dst2.x+dst.w && mouseY>=dst2.y && mouseY<=dst2.y+dst2.h)){
         SDL_RenderTexture(renderer,textTexture3, NULL, &dst4);
-    }
+        difficulty=1;
+    } 
     else{
        SDL_RenderTexture(renderer,textTexture1, NULL, &dst2);
+       difficulty=1;
     }
     if((mouseX>=dst3.x && mouseX<=dst3.x+dst.w && mouseY>=dst3.y && mouseY<=dst3.y+dst3.h)){
     
      SDL_RenderTexture(renderer,textTexture4, NULL, &dst5);
+     difficulty = read_in_difficulty;
     }
     else{
        SDL_RenderTexture(renderer,textTexture2, NULL, &dst3);
+    difficulty = read_in_difficulty;
     }
    
 

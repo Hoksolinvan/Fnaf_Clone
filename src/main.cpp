@@ -28,6 +28,7 @@ Uint64 animStartFrame = 0;
 bool leftdoorbottom =false;
 bool leftdoorup = false;
 bool powerdown_bool = false;
+bool current_night = 1;
 SDL_FRect timeText = {1120, 10, 125,50};
 SDL_FRect nightText = {1120, 50, 125,50};
 SDL_FRect powerleft = {20,590,100,35};
@@ -52,7 +53,7 @@ int deathanimFrame=0;
 int percentage = 100;
 Uint64 game_time=0;
 int time_index =0;
-int difficulty=5;
+int difficulty=1;
 int cameralocation = 0;
 
 int main(int argc, char* argv[]){
@@ -144,7 +145,16 @@ int main(int argc, char* argv[]){
     MIX_Audio* garble_1 = MIX_LoadAudio(mixer,"assets/sounds/garble1.wav",false);
     MIX_Audio* garble_2 = MIX_LoadAudio(mixer,"assets/sounds/garble2.wav",false);
     MIX_Audio* garble_3 = MIX_LoadAudio(mixer,"assets/sounds/garble3.wav",false);
+    MIX_Audio* MiniDV = MIX_LoadAudio(mixer,"assets/sounds/MiniDV_Tape_Eject_1.wav",false);
+    MIX_Audio* Freddyscream = MIX_LoadAudio(mixer,"assets/sounds/XSCREAM2.wav",false);
+    MIX_Audio* voiceover2a = MIX_LoadAudio(mixer,"assets/sounds/voiceover2a.wav",false);
+    MIX_Audio* voiceover3 = MIX_LoadAudio(mixer,"assets/sounds/voiceover3.wav",false);
+    MIX_Audio* voiceover4 = MIX_LoadAudio(mixer,"assets/sounds/voiceover4.wav",false);
+    MIX_Audio* voiceover5 = MIX_LoadAudio(mixer,"assets/sounds/voiceover5.wav",false);
 
+
+
+    MIX_Track* MiniDV_track = MIX_CreateTrack(mixer);
     MIX_Track* garble_track = MIX_CreateTrack(mixer);
     MIX_Track* laugh_track = MIX_CreateTrack(mixer);
     MIX_Track* whispering2_track = MIX_CreateTrack(mixer);
@@ -395,7 +405,7 @@ int main(int argc, char* argv[]){
 
         if(SDL_GetTicks()-lastAiTick >=5000 && main_office){
         bonnie->Tick(!leftdoorup,cameraMode,chikaroom,freddyroom);
-        freddy->Tick(rightdoorup,cameraMode,bonnieroom,chikaroom);
+        freddy->Tick(!rightdoorup,cameraMode,bonnieroom,chikaroom);
         chika->Tick(!rightdoorup,cameraMode,bonnieroom,freddyroom);
         foxy->Tick(cameraMode,(state==4),leftdoorup, leftdoorup);
             lastAiTick = SDL_GetTicks();
@@ -764,6 +774,58 @@ int main(int argc, char* argv[]){
 }
         else if(freddy->playerDeath){
 
+            Uint32 elapsed_time = SDL_GetTicks() - animStartFrame;
+            deathanimFrame = elapsed_time / 25;
+
+            if(!(deathanimFrame%60)) {
+        // animation finished
+        main_game = true;
+        main_menu = true;
+        soundplayed=false;
+        main_office = false;
+        cameraMode = false;
+        default_main_menu = true;
+        leftdoorbottom = false;
+        rightdoorbottom = false;
+        leftdoorup = false;
+        rightdoorup = false;
+        percentage = 100;
+        globalPowerUsage=0;
+
+
+
+        std::string temp_string_percentage = "100%";
+
+        SDL_DestroyTexture(percentage_texture);
+        SDL_Surface* temp = TTF_RenderText_Blended(font,temp_string_percentage.c_str(),0,color);
+        percentage_texture = SDL_CreateTextureFromSurface(renderer,temp);
+        SDL_DestroySurface(temp);
+        MIX_StopTrack(buzzfan_track,0);
+        MIX_StopTrack(sfxTrack,0);
+        delete bonnie;
+        delete freddy;
+        delete chika;
+        delete foxy;
+        bonnie = new Bonnie(difficulty);
+        chika = new Chika(difficulty);
+        freddy = new Freddy(difficulty);
+        foxy = new Foxy(difficulty);
+    }
+
+
+
+
+
+            
+            SDL_RenderTexture(renderer,Freddy_Peek_Texture[deathanimFrame%32],0,&deathdest);
+
+
+            if (!MIX_TrackPlaying(bonniejumpscaretrack) && !main_menu && !soundplayed) {
+        MIX_SetTrackAudio(bonniejumpscaretrack, Freddyscream);
+        MIX_PlayTrack(bonniejumpscaretrack, 0);
+        soundplayed = true;
+    }
+
         }
         else if(chika->playerDeath){
 
@@ -993,18 +1055,41 @@ int main(int argc, char* argv[]){
                 }
             }
 
-            if(pressed_E || inner_E){
+        
+
+            if(!pressed_E && !MIX_TrackPlaying(sfxTrack1)){
+            
+          
+            
+            switch(difficulty){
+
+              case 1:
+              MIX_SetTrackAudio(sfxTrack1, night1);
+              break;
+              case 2:
+              MIX_SetTrackAudio(sfxTrack1,voiceover2a);
+              break;
+              case 3:
+              MIX_SetTrackAudio(sfxTrack1,voiceover3);
+              break;
+              case 4:
+              MIX_SetTrackAudio(sfxTrack1,voiceover4);
+              break;
+              case 5:
+              MIX_SetTrackAudio(sfxTrack1,voiceover5);
+              break;
+                }
+            MIX_PlayTrack(sfxTrack1, 0);
+            pressed_E=true;
+            
+        }
+        else if((pressed_E && !MIX_TrackPlaying(sfxTrack1))){
                 MIX_StopTrack(sfxTrack1,0);
+                
                 }
 
-            else if(!MIX_TrackPlaying(sfxTrack1)){
-            
-            if(!pressed_E){
-              MIX_SetTrackAudio(sfxTrack1, night1);
-            MIX_PlayTrack(sfxTrack1, 0);
-            inner_E=true;
-            }
-            
+
+
 
             if(!(game_time % 60000)){
                 time_index++;
@@ -1045,13 +1130,6 @@ int main(int argc, char* argv[]){
             }
             
 
-        
-            
-           
-             
-
-            
-        }
       
           
             
@@ -1095,12 +1173,17 @@ int main(int argc, char* argv[]){
 
 
                     
+                      if (!MIX_TrackPlaying(MiniDV_track)) {
+                        MIX_SetTrackAudio(MiniDV_track, MiniDV);
+                        MIX_PlayTrack(MiniDV_track, 0);
+            
+                        }
+
 
 
                         if(cameralocation==0){
                          if(bonnieroom>=1 && chikaroom>=1 && freddyroom>=3){
-                            // if(frame)
-                            // SDL_RenderTexture(renderer,NULL,0,&deathdest);
+                           
                             state=15;
                         }
                         else if(bonnieroom>=1 && chikaroom>=1){
@@ -1288,7 +1371,10 @@ int main(int argc, char* argv[]){
     }
 
 
-
+    
+    std::ofstream MyFile("progress.txt");
+    MyFile << difficulty;
+    MyFile.close();
 
 
     // Clean up

@@ -4,6 +4,8 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <random>
 #include <algorithm>
+#include <fstream>
+#include <string>
 #include <iostream>
 
 
@@ -47,7 +49,6 @@ class MainMenu{
 
 
     private:
-
     int w;
     int h;
     SDL_Texture* textures[4];
@@ -91,9 +92,9 @@ class MainMenu{
     SDL_FRect dest2;
     SDL_FRect dst = {100,100,450,100};
     SDL_FRect dst2 = {100,300,200,50};
-    SDL_FRect dst3 = {100,400,200,50};
+    SDL_FRect dst3 = {100,400,350,50};
     SDL_FRect dst4 = {100,300,300,50};
-    SDL_FRect dst5 = {100,400,300,50};
+    SDL_FRect dst5 = {100,400,400,50};
     SDL_Color color = {255,255,255,255};
 
 
